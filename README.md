@@ -1,4 +1,8 @@
-# Duplicate
+# Duplicate [![Build Status][travis-image]][travis-link]
+
+[travis-image]: https://travis-ci.org/adamluzsi/duplicate.rb.svg?branch=master
+[travis-link]: https://travis-ci.org/adamluzsi/duplicate.rb
+[travis-home]: http://travis-ci.org/
 
 Duplicate is Originally extracted from rack-app project. 
 Allows you to Deep duplicate any ruby objects in pure ruby way. 
