@@ -1,0 +1,35 @@
+language: ruby
+
+before_install:
+  - gem update bundler
+  - bundle install
+
+script: rspec spec
+
+rvm:
+
+  - 1.8
+  - 1.9
+  - 2.0.0
+  - 2.1.1
+  - 2.1.2
+
+  - jruby-18mode
+  - jruby-19mode
+  - ree
+
+  - ruby-head
+  - jruby-head
+
+matrix:
+  allow_failures:
+    - rvm: ruby-head
+    - rvm: jruby-head
+
+branches:
+  only:
+    - master
+
+notifications:
+  email:
+    - adamluzsi@gmail.com
