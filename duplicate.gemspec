@@ -9,6 +9,7 @@ Gem::Specification.new do |spec|
   spec.authors       = ["Adam Luzsi"]
   spec.email         = ["adamluzsi@gmail.com"]
 
+  spec.license       = 'Apache License Version 2.0'
   spec.summary       = %q{Deep duplication for ruby objects in pure ruby}
   spec.description   = %q{Originally extracted from rack-app project. Deep duplication for ruby objects in pure ruby, that allow you recursively duplicate objects based on a source object, even replacing original object references}
   spec.homepage      = "http://www.rack-app.com"
