@@ -76,23 +76,48 @@ module Duplicate
   end
 
   def dup_object(register, object)
+    reattach_singleton_methods(register, object, register_duplication(register, object, object.dup))
     dup_instance_variables(register, object, register_duplication(register, object, object.dup))
   end
 
-  def dup_instance_variables(register, object, duplicate)
-    object.instance_variables.each do |instance_variable|
-      value = object.instance_variable_get(instance_variable)
-      duplicate.instance_variable_set(instance_variable, dup(register, value))
-    end
+  def reattach_singleton_methods(register, object, duplication)
+    object.singleton_methods.each do |method_name|
 
-    return duplicate
+    end
   end
 
   def registrable?(object)
-    object.object_id
+    object.respond_to?(:object_id)
     true
   rescue NoMethodError
     false
+  end
+
+  def dup_instance_variables(register, object, duplication)
+    return duplication unless object.respond_to?(:instance_variables)
+
+    object.instance_variables.each do |instance_variable|
+      value = get_instance_variable(object, instance_variable)
+
+      set_instance_variable(register, duplication, instance_variable, dup(register, value))
+    end
+
+    return duplication
+  end
+
+  private
+
+  def get_instance_variable(object, instance_variable_name)
+    object.instance_variable_get(instance_variable_name)
+  rescue NoMethodError
+    object.instance_eval("#{instance_variable_name}")
+  end
+
+  def set_instance_variable(register, duplicate, instance_variable_name, value_to_set)
+    duplicate.instance_variable_set(instance_variable_name, value_to_set)
+  rescue NoMethodError
+    duplicate.instance_eval { @__duplicate__fallback__cache__ = value_to_set }
+    duplicate.instance_eval("#{instance_variable_name} = @__duplicate__fallback__cache__")
   end
 
 end
