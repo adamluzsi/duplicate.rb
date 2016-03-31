@@ -4,7 +4,7 @@
 [travis-link]: https://travis-ci.org/adamluzsi/duplicate.rb
 [travis-home]: http://travis-ci.org/
 
-Duplicate is Originally extracted from rack-app project. 
+Duplicate is Originally extracted from [rack-app](http://www.rack-app.com) project. 
 Allows you to Deep duplicate any ruby objects in pure ruby way. 
 That way you can recursively duplicate objects and even replacing original object references with in instance variable references
 
