@@ -23,6 +23,7 @@ module Duplicate
 
   def dup(register, object)
 
+    return object unless registrable?(object)
     return registered(object, register) if registered(object, register)
 
     case object
@@ -85,6 +86,13 @@ module Duplicate
     end
 
     return duplicate
+  end
+
+  def registrable?(object)
+    object.object_id
+    true
+  rescue NoMethodError
+    false
   end
 
 end
