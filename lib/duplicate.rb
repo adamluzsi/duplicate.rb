@@ -13,18 +13,18 @@ module Duplicate
   protected
 
   def registered(object, register)
-    register[object.object_id]
+    register[object.__id__]
   end
 
   def register_duplication(register, object, duplicate)
-    register[object.object_id]= duplicate
+    register[object.__id__]= duplicate
     duplicate
   end
 
   def dup(register, object)
 
-    return object unless registrable?(object)
     return registered(object, register) if registered(object, register)
+    return register_duplication(register, object, object) unless identifiable?(object)
 
     case object
 
@@ -47,6 +47,12 @@ module Duplicate
         dup_object(register, object)
 
     end
+  end
+
+  def identifiable?(object)
+    object.class && object.respond_to?(:is_a?)
+  rescue NoMethodError
+    false
   end
 
   def dup_array(register, object)
@@ -76,36 +82,20 @@ module Duplicate
   end
 
   def dup_object(register, object)
-    reattach_singleton_methods(register, object, register_duplication(register, object, object.dup))
-    dup_instance_variables(register, object, register_duplication(register, object, object.dup))
-  end
-
-  def reattach_singleton_methods(register, object, duplication)
-    object.singleton_methods.each do |method_name|
-
-    end
-  end
-
-  def registrable?(object)
-    object.respond_to?(:object_id)
-    true
-  rescue NoMethodError
-    false
+    dup_instance_variables(register, object, register_duplication(register, object, try_dup(object)))
   end
 
   def dup_instance_variables(register, object, duplication)
-    return duplication unless object.respond_to?(:instance_variables)
+    return duplication unless respond_to_instance_variables?(object)
 
     object.instance_variables.each do |instance_variable|
       value = get_instance_variable(object, instance_variable)
 
-      set_instance_variable(register, duplication, instance_variable, dup(register, value))
+      set_instance_variable(duplication, instance_variable, dup(register, value))
     end
 
     return duplication
   end
-
-  private
 
   def get_instance_variable(object, instance_variable_name)
     object.instance_variable_get(instance_variable_name)
@@ -113,11 +103,22 @@ module Duplicate
     object.instance_eval("#{instance_variable_name}")
   end
 
-  def set_instance_variable(register, duplicate, instance_variable_name, value_to_set)
+  def set_instance_variable(duplicate, instance_variable_name, value_to_set)
     duplicate.instance_variable_set(instance_variable_name, value_to_set)
   rescue NoMethodError
-    duplicate.instance_eval { @__duplicate__fallback__cache__ = value_to_set }
-    duplicate.instance_eval("#{instance_variable_name} = @__duplicate__fallback__cache__")
+    duplicate.instance_eval("#{instance_variable_name} = Marshal.load(#{Marshal.dump(value_to_set).inspect})")
+  end
+
+  def try_dup(object)
+    object.dup
+  rescue NoMethodError, TypeError
+    object
+  end
+
+  def respond_to_instance_variables?(object)
+    object.respond_to?(:instance_variables) && object.instance_variables.is_a?(Array)
+  rescue NoMethodError
+    false
   end
 
 end
